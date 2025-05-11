@@ -1,5 +1,4 @@
 
-import React from "react";
 import { CartItem as CartItemType } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,7 +40,7 @@ const CartItem: React.FC<CartItemProps> = ({
         </div>
         <div className="ml-3 flex-1">
           <h4 className="font-medium text-sm">{product.name}</h4>
-          <p className="text-gray-500 text-xs">${product.price.toFixed(2)}</p>
+          <p className="text-gray-500 text-xs">Rs {product.price.toFixed(2)}</p>
         </div>
       </div>
 

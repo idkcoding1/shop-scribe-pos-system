@@ -1,5 +1,4 @@
 
-import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import Receipt from "@/components/Receipt";

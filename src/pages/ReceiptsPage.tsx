@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useCart, Receipt as ReceiptType } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -94,7 +94,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt }) => {
             </div>
             <div className="flex justify-between font-semibold">
               <span>Total:</span>
-              <span>${receipt.total.toFixed(2)}</span>
+              <span>Rs {receipt.total.toFixed(2)}</span>
             </div>
           </div>
         </CardContent>

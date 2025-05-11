@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Plus, Edit, Trash2 } from "lucide-react";
@@ -13,16 +13,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog,  AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from "@radix-ui/react-alert-dialog";
+import { AlertDialogHeader,AlertDialogAction, AlertDialogFooter } from "@/components/ui/alert-dialog";
 
 const ProductsPage: React.FC = () => {
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
@@ -111,7 +103,7 @@ const ProductsPage: React.FC = () => {
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.category}</TableCell>
-                  <TableCell className="text-right">${product.price.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">Rs {product.price.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                     {product.quantity !== undefined ? product.quantity : "N/A"}
                   </TableCell>

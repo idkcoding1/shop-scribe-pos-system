@@ -1,5 +1,4 @@
-
-import React, { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext } from "react";
 import { toast } from "sonner";
 import { Product } from "./ProductContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -133,12 +132,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Store the receipt in Supabase
       const { error } = await supabase
         .from('receipts')
-        .insert([{
+        .insert({
           total: receipt.total,
-          items: receipt.items,
+          items: JSON.stringify(receipt.items),
+          date: receipt.date.toISOString(),
           customer_name: receipt.customer_name,
           customer_phone: receipt.customer_phone
-        }]);
+        });
 
       if (error) {
         throw error;

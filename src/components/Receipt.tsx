@@ -1,5 +1,5 @@
 
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { Receipt as ReceiptType } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -104,7 +104,7 @@ const Receipt: React.FC<ReceiptProps> = ({ receipt }) => {
                       <td className="text-center py-1">{item.quantity}</td>
                       <td className="text-right py-1">${item.product.price.toFixed(2)}</td>
                       <td className="text-right py-1">
-                        ${(item.product.price * item.quantity).toFixed(2)}
+                        Rs{(item.product.price * item.quantity).toFixed(2)}
                       </td>
                     </tr>
                   ))}

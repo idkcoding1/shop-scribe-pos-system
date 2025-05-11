@@ -1,5 +1,3 @@
-
-import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Product } from "@/context/ProductContext";
 import { Button } from "@/components/ui/button";
@@ -36,7 +34,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAdd }) => {
           <div>
             <h3 className="font-medium">{product.name}</h3>
             <p className="text-sm text-gray-500">{product.category}</p>
-            <p className="text-primary-700 font-bold mt-1">${product.price.toFixed(2)}</p>
+            <p className="text-primary-700 font-bold mt-1">Rs{product.price.toFixed(2)}</p>
           </div>
           <Button
             variant="ghost"

@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import  { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Menu, ChevronLeft, ChevronRight, LayoutDashboard, Package, ShoppingCart, Settings, Receipt, LogOut } from "lucide-react";

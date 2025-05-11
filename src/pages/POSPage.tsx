@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, ShoppingCart, BadgeX } from "lucide-react";
@@ -169,7 +169,7 @@ const POSPage: React.FC = () => {
           <CardFooter className="flex flex-col border-t p-4 space-y-4">
             <div className="w-full flex justify-between items-center text-lg font-bold">
               <span>Total:</span>
-              <span>${cartTotal.toFixed(2)}</span>
+              <span>Rs{cartTotal.toFixed(2)}</span>
             </div>
             <Button
               onClick={handleCheckoutClick}
