@@ -2,6 +2,7 @@
 import React, { createContext, useState, useContext } from "react";
 import { toast } from "sonner";
 import { Product } from "./ProductContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface CartItem {
   product: Product;
@@ -13,6 +14,8 @@ export interface Receipt {
   items: CartItem[];
   total: number;
   date: Date;
+  customer_name?: string;
+  customer_phone?: string;
 }
 
 interface CartContextType {
@@ -22,7 +25,7 @@ interface CartContextType {
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
-  checkout: () => Receipt;
+  checkout: (customerInfo?: { name?: string; phone?: string }) => Promise<Receipt>;
   receipts: Receipt[];
 }
 
@@ -90,24 +93,68 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   };
 
-  const checkout = () => {
+  const checkout = async (customerInfo?: { name?: string; phone?: string }) => {
     if (items.length === 0) {
       toast.error("Cannot checkout with an empty cart");
       throw new Error("Cannot checkout with an empty cart");
     }
 
+    // Create a receipt object
     const receipt: Receipt = {
       id: `receipt-${Date.now()}`,
       items: [...items],
       total: getCartTotal(),
       date: new Date(),
+      customer_name: customerInfo?.name,
+      customer_phone: customerInfo?.phone
     };
 
-    setReceipts((prev) => [...prev, receipt]);
-    setItems([]);
-    toast.success("Checkout complete!");
+    try {
+      // Update product quantities in Supabase
+      for (const item of items) {
+        const product = item.product;
+        const newQuantity = (product.quantity || 0) - item.quantity;
+        
+        if (newQuantity < 0) {
+          toast.error(`Not enough ${product.name} in stock`);
+          throw new Error(`Not enough ${product.name} in stock`);
+        }
 
-    return receipt;
+        const { error: updateError } = await supabase
+          .from('products')
+          .update({ quantity: newQuantity })
+          .eq('id', product.id);
+
+        if (updateError) {
+          throw updateError;
+        }
+      }
+
+      // Store the receipt in Supabase
+      const { error } = await supabase
+        .from('receipts')
+        .insert([{
+          total: receipt.total,
+          items: receipt.items,
+          customer_name: receipt.customer_name,
+          customer_phone: receipt.customer_phone
+        }]);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update local state
+      setReceipts((prev) => [...prev, receipt]);
+      setItems([]);
+      toast.success("Checkout complete!");
+
+      return receipt;
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error("Checkout failed. Please try again.");
+      throw error;
+    }
   };
 
   return (

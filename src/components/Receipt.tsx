@@ -69,6 +69,21 @@ const Receipt: React.FC<ReceiptProps> = ({ receipt }) => {
                 <span>Date:</span>
                 <span>{format(new Date(receipt.date), "MMM dd, yyyy h:mm a")}</span>
               </div>
+              
+              {/* Customer Information */}
+              {receipt.customer_name && (
+                <div className="flex justify-between text-sm">
+                  <span>Customer:</span>
+                  <span>{receipt.customer_name}</span>
+                </div>
+              )}
+              
+              {receipt.customer_phone && (
+                <div className="flex justify-between text-sm">
+                  <span>Phone:</span>
+                  <span>{receipt.customer_phone}</span>
+                </div>
+              )}
             </div>
 
             {/* Items */}

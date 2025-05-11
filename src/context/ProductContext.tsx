@@ -1,6 +1,7 @@
 
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Product {
   id: string;
@@ -13,10 +14,11 @@ export interface Product {
 
 interface ProductContextType {
   products: Product[];
-  addProduct: (product: Omit<Product, "id">) => void;
-  updateProduct: (id: string, product: Partial<Product>) => void;
-  deleteProduct: (id: string) => void;
+  addProduct: (product: Omit<Product, "id">) => Promise<void>;
+  updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
   getProduct: (id: string) => Product | undefined;
+  loadProducts: () => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -32,53 +34,96 @@ export const useProducts = () => {
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
 
-  // Load products from localStorage on mount
-  useEffect(() => {
-    const storedProducts = localStorage.getItem("products");
-    if (storedProducts) {
-      setProducts(JSON.parse(storedProducts));
-    } else {
-      // Add sample products for demo
-      const sampleProducts: Product[] = [
-        { id: "1", name: "T-Shirt", price: 19.99, category: "Clothing", quantity: 50 },
-        { id: "2", name: "Coffee Mug", price: 9.99, category: "Home Goods", quantity: 30 },
-        { id: "3", name: "Notebook", price: 4.99, category: "Stationery", quantity: 100 },
-        { id: "4", name: "Phone Case", price: 14.99, category: "Electronics", quantity: 25 },
-      ];
-      setProducts(sampleProducts);
-      localStorage.setItem("products", JSON.stringify(sampleProducts));
+  // Load products from Supabase on mount
+  const loadProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*');
+
+      if (error) {
+        throw error;
+      }
+
+      if (data) {
+        setProducts(data);
+      }
+    } catch (error) {
+      console.error("Error loading products:", error);
+      toast.error("Failed to load products");
     }
+  };
+
+  useEffect(() => {
+    loadProducts();
   }, []);
 
-  // Save products to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("products", JSON.stringify(products));
-  }, [products]);
+  const addProduct = async (product: Omit<Product, "id">) => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .insert([product])
+        .select();
 
-  const addProduct = (product: Omit<Product, "id">) => {
-    const newProduct = {
-      ...product,
-      id: Date.now().toString(),
-    };
-    
-    setProducts((prevProducts) => [...prevProducts, newProduct]);
-    toast.success("Product added successfully!");
+      if (error) {
+        throw error;
+      }
+
+      if (data && data.length > 0) {
+        setProducts((prevProducts) => [...prevProducts, data[0]]);
+        toast.success("Product added successfully!");
+        return;
+      }
+
+      throw new Error("No data returned from insert");
+    } catch (error) {
+      console.error("Error adding product:", error);
+      toast.error("Failed to add product");
+    }
   };
 
-  const updateProduct = (id: string, updatedProduct: Partial<Product>) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.id === id ? { ...product, ...updatedProduct } : product
-      )
-    );
-    toast.success("Product updated successfully!");
+  const updateProduct = async (id: string, updatedProduct: Partial<Product>) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update(updatedProduct)
+        .eq('id', id);
+
+      if (error) {
+        throw error;
+      }
+
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === id ? { ...product, ...updatedProduct } : product
+        )
+      );
+      toast.success("Product updated successfully!");
+    } catch (error) {
+      console.error("Error updating product:", error);
+      toast.error("Failed to update product");
+    }
   };
 
-  const deleteProduct = (id: string) => {
-    setProducts((prevProducts) =>
-      prevProducts.filter((product) => product.id !== id)
-    );
-    toast.success("Product deleted successfully!");
+  const deleteProduct = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        throw error;
+      }
+
+      setProducts((prevProducts) =>
+        prevProducts.filter((product) => product.id !== id)
+      );
+      toast.success("Product deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      toast.error("Failed to delete product");
+    }
   };
 
   const getProduct = (id: string) => {
@@ -87,7 +132,14 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   return (
     <ProductContext.Provider
-      value={{ products, addProduct, updateProduct, deleteProduct, getProduct }}
+      value={{ 
+        products, 
+        addProduct, 
+        updateProduct, 
+        deleteProduct, 
+        getProduct,
+        loadProducts 
+      }}
     >
       {children}
     </ProductContext.Provider>

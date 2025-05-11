@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, ShoppingCart, BadgeX } from "lucide-react";
@@ -11,14 +11,37 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+const customerSchema = z.object({
+  name: z.string().optional(),
+  phone: z.string().optional(),
+});
+
+type CustomerInfo = z.infer<typeof customerSchema>;
 
 const POSPage: React.FC = () => {
-  const { products } = useProducts();
+  const { products, loadProducts } = useProducts();
   const { items, addToCart, removeFromCart, updateQuantity, getCartTotal, checkout } = useCart();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | "all">("all");
+  const [checkoutDialogOpen, setCheckoutDialogOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Initialize form
+  const form = useForm<CustomerInfo>({
+    resolver: zodResolver(customerSchema),
+    defaultValues: {
+      name: "",
+      phone: "",
+    },
+  });
 
   // Get unique categories from products
   const categories = ["all", ...Array.from(new Set(products.map((p) => p.category)))];
@@ -30,7 +53,7 @@ const POSPage: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleCheckout = () => {
+  const handleCheckoutClick = () => {
     if (items.length === 0) {
       toast({
         title: "Cart is empty",
@@ -39,9 +62,18 @@ const POSPage: React.FC = () => {
       });
       return;
     }
+    
+    setCheckoutDialogOpen(true);
+  };
 
+  const handleCheckoutSubmit = async (data: CustomerInfo) => {
     try {
-      const receipt = checkout();
+      const receipt = await checkout({
+        name: data.name || undefined,
+        phone: data.phone || undefined
+      });
+      setCheckoutDialogOpen(false);
+      await loadProducts(); // Reload products to get updated quantities
       navigate(`/receipts/${receipt.id}`);
     } catch (error) {
       toast({
@@ -140,7 +172,7 @@ const POSPage: React.FC = () => {
               <span>${cartTotal.toFixed(2)}</span>
             </div>
             <Button
-              onClick={handleCheckout}
+              onClick={handleCheckoutClick}
               disabled={items.length === 0}
               className="w-full"
               size="lg"
@@ -150,6 +182,59 @@ const POSPage: React.FC = () => {
           </CardFooter>
         </Card>
       </div>
+
+      {/* Checkout Dialog */}
+      <Dialog open={checkoutDialogOpen} onOpenChange={setCheckoutDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Complete Your Purchase</DialogTitle>
+          </DialogHeader>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleCheckoutSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Customer Name (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter customer name" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter phone number" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              
+              <div className="pt-2 text-lg font-bold">
+                Total: ${cartTotal.toFixed(2)}
+              </div>
+              
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setCheckoutDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">Complete Purchase</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
