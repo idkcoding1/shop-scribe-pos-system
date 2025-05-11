@@ -3,6 +3,7 @@ import React from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Navigate, Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PrivateLayoutProps {
   children?: React.ReactNode;
@@ -10,6 +11,7 @@ interface PrivateLayoutProps {
 
 const PrivateLayout: React.FC<PrivateLayoutProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
+  const isMobile = useIsMobile();
 
   if (isLoading) {
     return (
@@ -26,7 +28,7 @@ const PrivateLayout: React.FC<PrivateLayoutProps> = ({ children }) => {
   return (
     <div className="flex h-screen w-full bg-gray-50">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto p-4 md:p-6">
+      <main className={`flex-1 overflow-y-auto p-4 md:p-6 ${isMobile ? 'pt-16' : ''}`}>
         {children || <Outlet />}
       </main>
     </div>
