@@ -63,7 +63,7 @@ const DashboardPage: React.FC = () => {
           <CardContent>
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-2xl font-bold">${todaysSales.toFixed(2)}</p>
+                <p className="text-2xl font-bold">Rs {todaysSales.toFixed(2)}</p>
                 <p className="text-xs text-gray-500">
                   {todaysTransactions.length} transactions today
                 </p>
@@ -81,7 +81,7 @@ const DashboardPage: React.FC = () => {
           <CardContent>
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-2xl font-bold">${totalSales.toFixed(2)}</p>
+                <p className="text-2xl font-bold">Rs {totalSales.toFixed(2)}</p>
                 <p className="text-xs text-gray-500">
                   {totalTransactions} total transactions
                 </p>
@@ -118,7 +118,7 @@ const DashboardPage: React.FC = () => {
             {receipts.length > 0 ? (
               <div>
                 <p className="text-xl font-bold">
-                  ${receipts[receipts.length - 1].total.toFixed(2)}
+                  Rs {receipts[receipts.length - 1].total.toFixed(2)}
                 </p>
                 <p className="text-xs text-gray-500">
                   {format(new Date(receipts[receipts.length - 1].date), "h:mm a")}
@@ -157,7 +157,7 @@ const DashboardPage: React.FC = () => {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold">${receipt.total.toFixed(2)}</p>
+                      <p className="font-bold">Rs {receipt.total.toFixed(2)}</p>
                       <p className="text-xs text-gray-500">
                         {receipt.items.length} items
                       </p>
@@ -193,7 +193,7 @@ const DashboardPage: React.FC = () => {
                       {product.quantity} in stock
                     </p>
                     <p className="text-xs text-gray-500">
-                      ${product.price.toFixed(2)} each
+                      Rs {product.price.toFixed(2)} each
                     </p>
                   </div>
                 </div>

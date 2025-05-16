@@ -1,4 +1,3 @@
-
 import  { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -20,17 +19,23 @@ const Sidebar: React.FC = () => {
 
   return (
     <>
-      {/* Mobile Overlay */}
-      <div 
-        onClick={() => setCollapsed(true)} 
-        className={`fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden ${collapsed ? "hidden" : "block"}`}
-      />
+      {/* Mobile Overlay (only show when sidebar is open and on mobile) */}
+      {!collapsed && (
+        <div
+          onClick={() => setCollapsed(true)}
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+        />
+      )}
 
       {/* Sidebar */}
-      <div 
-        className={`${
-          collapsed ? "w-20" : "w-64"
-        } flex flex-col fixed lg:relative h-full bg-white border-r border-gray-200 transition-all duration-300 z-30`}
+      <div
+        className={`
+          ${collapsed ? "w-20" : "w-64"}
+          flex flex-col
+          ${collapsed ? "lg:relative" : "fixed"}
+          ${collapsed ? "" : "left-0 top-0 h-full z-50"}
+          bg-white border-r border-gray-200 transition-all duration-300
+        `}
       >
         {/* Header */}
         <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between"} h-16 px-4 border-b border-gray-100`}>

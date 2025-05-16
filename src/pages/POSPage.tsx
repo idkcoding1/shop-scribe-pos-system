@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +25,7 @@ const customerSchema = z.object({
 type CustomerInfo = z.infer<typeof customerSchema>;
 
 const POSPage: React.FC = () => {
-  const { products, loadProducts } = useProducts();
+  const { products } = useProducts();
   const { items, addToCart, removeFromCart, updateQuantity, getCartTotal, checkout } = useCart();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | "all">("all");
@@ -73,7 +72,6 @@ const POSPage: React.FC = () => {
         phone: data.phone || undefined
       });
       setCheckoutDialogOpen(false);
-      await loadProducts(); // Reload products to get updated quantities
       navigate(`/receipts/${receipt.id}`);
     } catch (error) {
       toast({
@@ -219,7 +217,7 @@ const POSPage: React.FC = () => {
               />
               
               <div className="pt-2 text-lg font-bold">
-                Total: ${cartTotal.toFixed(2)}
+                Total: Rs{cartTotal.toFixed(2)}
               </div>
               
               <DialogFooter>

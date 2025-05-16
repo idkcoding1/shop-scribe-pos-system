@@ -104,7 +104,7 @@ const Receipt: React.FC<ReceiptProps> = ({ receipt }) => {
                       <td className="text-center py-1">{item.quantity}</td>
                       <td className="text-right py-1">${item.product.price.toFixed(2)}</td>
                       <td className="text-right py-1">
-                        Rs{(item.product.price * item.quantity).toFixed(2)}
+                        Rs {(item.product.price * item.quantity).toFixed(2)}
                       </td>
                     </tr>
                   ))}
@@ -116,7 +116,7 @@ const Receipt: React.FC<ReceiptProps> = ({ receipt }) => {
             <div className="border-t border-dashed pt-2">
               <div className="flex justify-between font-bold">
                 <span>Total:</span>
-                <span>${receipt.total.toFixed(2)}</span>
+                <span>Rs{receipt.total.toFixed(2)}</span>
               </div>
             </div>
 

@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -17,6 +16,7 @@ import ReceiptDetailPage from "@/pages/ReceiptDetailPage";
 import DashboardPage from "@/pages/DashboardPage";
 import NotFound from "@/pages/NotFound";
 import PrivateLayout from "@/components/Layout";
+
 
 const queryClient = new QueryClient();
 

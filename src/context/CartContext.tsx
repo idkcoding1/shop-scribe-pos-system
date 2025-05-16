@@ -2,6 +2,7 @@ import { createContext, useState, useContext } from "react";
 import { toast } from "sonner";
 import { Product } from "./ProductContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 export interface CartItem {
   product: Product;
@@ -41,6 +42,7 @@ export const useCart = () => {
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [receipts, setReceipts] = useState<Receipt[]>([]);
+  const { user } = useAuth();
 
   const addToCart = (product: Product, quantity: number = 1) => {
     setItems((prevItems) => {
@@ -93,6 +95,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const checkout = async (customerInfo?: { name?: string; phone?: string }) => {
+    if (!user) {
+      toast.error("You must be logged in to checkout");
+      throw new Error("User not authenticated");
+    }
+
     if (items.length === 0) {
       toast.error("Cannot checkout with an empty cart");
       throw new Error("Cannot checkout with an empty cart");
@@ -122,7 +129,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { error: updateError } = await supabase
           .from('products')
           .update({ quantity: newQuantity })
-          .eq('id', product.id);
+          .eq('id', product.id)
+          .eq('user_id', user.id);
 
         if (updateError) {
           throw updateError;
@@ -137,7 +145,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           items: JSON.stringify(receipt.items),
           date: receipt.date.toISOString(),
           customer_name: receipt.customer_name,
-          customer_phone: receipt.customer_phone
+          customer_phone: receipt.customer_phone,
+          user_id: user.id
         });
 
       if (error) {

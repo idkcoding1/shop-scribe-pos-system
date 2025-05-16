@@ -19,6 +19,7 @@ export type Database = {
           price: number
           quantity: number
           updated_at: string
+          user_id: string
         }
         Insert: {
           category: string
@@ -29,6 +30,7 @@ export type Database = {
           price: number
           quantity?: number
           updated_at?: string
+          user_id: string
         }
         Update: {
           category?: string
@@ -39,6 +41,7 @@ export type Database = {
           price?: number
           quantity?: number
           updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -48,18 +51,21 @@ export type Database = {
           id: string
           items: Json
           total: number
+          user_id: string
         }
         Insert: {
           date?: string
           id?: string
           items: Json
           total: number
+          user_id: string
         }
         Update: {
           date?: string
           id?: string
           items?: Json
           total?: number
+          user_id?: string
         }
         Relationships: []
       }

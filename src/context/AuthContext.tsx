@@ -1,7 +1,7 @@
-
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface User {
   id: string;
@@ -42,47 +42,87 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Check for existing user session on load
+  // Check for existing session on load
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedShopDetails = localStorage.getItem("shopDetails");
-    
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    
-    if (storedShopDetails) {
-      setShopDetails(JSON.parse(storedShopDetails));
-    }
-    
-    setIsLoading(false);
+    const checkUser = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          throw error;
+        }
+
+        if (session?.user) {
+          const realUser: User = {
+            id: session.user.id,
+            email: session.user.email ?? "",
+            name: session.user.user_metadata?.name || session.user.email?.split("@")[0] || "",
+          };
+          setUser(realUser);
+        }
+
+        // Check for shop details
+        const storedShopDetails = localStorage.getItem("shopDetails");
+        if (storedShopDetails) {
+          setShopDetails(JSON.parse(storedShopDetails));
+        }
+      } catch (error) {
+        console.error("Error checking auth:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkUser();
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        const realUser: User = {
+          id: session.user.id,
+          email: session.user.email ?? "",
+          name: session.user.user_metadata?.name || session.user.email?.split("@")[0] || "",
+        };
+        setUser(realUser);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // This is a mock implementation. In a real app, you'd make an API call here
-      if (email && password) {
-        // Simulate successful login
-        const mockUser: User = {
-          id: "user-123",
-          email,
-          name: email.split("@")[0],
-        };
-        
-        setUser(mockUser);
-        localStorage.setItem("user", JSON.stringify(mockUser));
-        toast.success("Logged in successfully!");
-        
-        // Check if shop details exist
-        const storedShopDetails = localStorage.getItem("shopDetails");
-        if (storedShopDetails) {
-          navigate("/pos");
-        } else {
-          navigate("/shop-setup");
-        }
-      } else {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error || !data.user) {
         toast.error("Invalid credentials");
+        setIsLoading(false);
+        return;
+      }
+
+      const realUser: User = {
+        id: data.user.id,
+        email: data.user.email ?? "",
+        name: data.user.user_metadata?.name || data.user.email?.split("@")[0] || "",
+      };
+
+      setUser(realUser);
+      toast.success("Logged in successfully!");
+
+      // Check if shop details exist
+      const storedShopDetails = localStorage.getItem("shopDetails");
+      if (storedShopDetails) {
+        navigate("/pos");
+      } else {
+        navigate("/shop-setup");
       }
     } catch (error) {
       console.error("Login failed:", error);
@@ -92,11 +132,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-    navigate("/login");
-    toast.info("Logged out successfully");
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      navigate("/login");
+      toast.info("Logged out successfully");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Logout failed");
+    }
   };
 
   const saveShopDetails = (details: ShopDetails) => {

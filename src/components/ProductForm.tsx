@@ -21,7 +21,7 @@ interface ProductFormProps {
   initialData?: Product;
 }
 
-const categories = ["Clothing", "Electronics", "Food", "Home Goods", "Stationery", "Other"];
+const categories = ["Neat-Register", "Rough-Register","Girls-Bag","Boys-Bag","Thermo-flask","Water-Bottle","Tiffin-Box","School-Bag","Pencil-Box","Pouch","Pencil-Sharpener","Eraser","Ruler","Compass","Geometry-Box","Math-Set","Art-Set","Craft-Set","Stationery-Set","Canvas","White Board","Prince-Register","AR-Register","Other"];
 
 const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, onSubmit, initialData }) => {
   const [formData, setFormData] = useState<Omit<Product, "id">>({
@@ -107,7 +107,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, onSubmit, in
           <div className="space-y-2">
             <Label htmlFor="price">Price</Label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+              <span className="absolute space-x-2 left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
                 Rs
               </span>
               <Input
@@ -116,9 +116,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, onSubmit, in
                 type="number"
                 value={formData.price}
                 onChange={handleChange}
-                min="0"
+                min="1"
                 step="0.01"
-                className="pl-7"
+                className="pl-7 "
                 required
               />
             </div>

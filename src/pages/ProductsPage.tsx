@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,13 +62,12 @@ const ProductsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <h1 className="text-2xl font-bold">Products</h1>
-        <Button onClick={handleAddProduct}>
-          <Plus className="h-4 w-4 mr-2" /> Add Product
-        </Button>
-      </div>
-
+          <div className="flex flex-row justify-between items-center w-full">
+      <h1 className="text-2xl font-bold">Products</h1>
+      <Button onClick={handleAddProduct} size="sm">
+        <Plus className="h-4 w-4 mr-2" /> Add Product
+      </Button>
+    </div>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
         <Input
@@ -80,57 +78,47 @@ const ProductsPage: React.FC = () => {
         />
       </div>
 
-      <div className="border rounded-md overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead className="text-right">Price</TableHead>
-              <TableHead className="text-right">Quantity</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredProducts.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-6 text-gray-500">
-                  {searchTerm ? "No products matched your search" : "No products added yet"}
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredProducts.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>{product.category}</TableCell>
-                  <TableCell className="text-right">Rs {product.price.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">
-                    {product.quantity !== undefined ? product.quantity : "N/A"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEditProduct(product)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteClick(product.id)}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {filteredProducts.length === 0 ? (
+          <div className="col-span-full text-center py-6 text-gray-500">
+            {searchTerm ? "No products matched your search" : "No products added yet"}
+          </div>
+        ) : (
+          filteredProducts.map((product) => (
+            <div key={product.id} className="border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 bg-white overflow-hidden">
+              <div className="p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <h2 className="text-lg font-semibold text-gray-800 truncate">{product.name}</h2>
+                  <div className="flex space-x-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEditProduct(product)}
+                      className="text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteClick(product.id)}
+                      className="text-gray-500 hover:text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-indigo-500">{product.category}</p>
+                  <p className="text-base font-bold text-gray-900">Rs {product.price.toFixed(2)}</p>
+                  <p className="text-sm text-gray-600">
+                    Stock: <span className="font-medium">{product.quantity !== undefined ? product.quantity : "N/A"}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       <ProductForm
@@ -156,7 +144,8 @@ const ProductsPage: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+
+              </div>
   );
 };
 
